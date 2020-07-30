@@ -1,3 +1,13 @@
+"""
+Implementation date: 30.07.2020
+
+Simple error wrappers.
+
+According to document:
+https://m2m.cr.usgs.gov/api/docs/exceptioncodes/
+"""
+
+
 class UNKNOWN(Exception):
     pass
 
