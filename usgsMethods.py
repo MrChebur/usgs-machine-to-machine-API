@@ -12,7 +12,7 @@ class usgsMethods:
     https://m2m.cr.usgs.gov/api/docs/reference/
     """
 
-    apiURL = r'https://m2m.cr.usgs.gov/api/api/json/stable/'  # must ends with slash - "/"
+    apiURL = r'https://m2m.cr.usgs.gov/api/api/json/stable/'  # must ends with slash: "/"
     apiKey = None
     loud_mode = True
 
@@ -96,19 +96,19 @@ class usgsMethods:
         return response.json()
 
     # this method has been removed from docs
-    # def datasetDownloadOptions(self, datasetName, sceneFilter=None):
-    #     """
-    #
-    #     :param datasetName:
-    #     :param sceneFilter:
-    #     :return: (dict) Response as a dictionary
-    #     """
-    #     url = f'{self.apiURL}dataset-download-options'
-    #     json_payload = {"datasetName": datasetName,
-    #                     "sceneFilter": sceneFilter}
-    #     response = requests.post(url, json=json_payload, headers={'X-Auth-Token': self.apiKey})
-    #     _check_response(response)
-    #     return response.json()
+    def datasetDownloadOptions(self, datasetName, sceneFilter=None):
+        """
+        This request lists all available products for a given dataset - this does not guarantee scene availability.
+        :param datasetName:
+        :param sceneFilter:
+        :return: (dict) Response as a dictionary
+        """
+        url = f'{self.apiURL}dataset-download-options'
+        json_payload = {"datasetName": datasetName,
+                        "sceneFilter": sceneFilter}
+        response = requests.post(url, json=json_payload, headers={'X-Auth-Token': self.apiKey})
+        _check_response(response)
+        return response.json()
 
     def datasetFilters(self, datasetName):
         """
@@ -265,30 +265,29 @@ class usgsMethods:
         _check_response(response)
         return response.json()
 
-    # this method has been removed from docs
-    # def downloadRequest(self, configurationCode=None, downloadApplication=None,
-    #                     downloads=None, dataPaths=None, label=None, returnAvailable=False):
-    #     """
-    #
-    #     :param configurationCode:
-    #     :param downloadApplication:
-    #     :param downloads:
-    #     :param dataPaths:
-    #     :param label:
-    #     :param returnAvailable:
-    #     :return: (dict) Response as a dictionary
-    #     """
-    #     url = f'{self.apiURL}download-request'
-    #     json_payload = {"configurationCode": configurationCode,
-    #                     "downloadApplication": downloadApplication,
-    #                     "downloads": downloads,
-    #                     "dataPaths": dataPaths,
-    #                     "label": label,
-    #                     "returnAvailable": returnAvailable,  # this may be undocumented parameter
-    #                     }
-    #     response = requests.post(url, json=json_payload, headers={'X-Auth-Token': self.apiKey})
-    #     _check_response(response)
-    #     return response.json()
+    def downloadRequest(self, configurationCode=None, downloadApplication=None,
+                        downloads=None, dataPaths=None, label=None, returnAvailable=False):
+        """
+
+        :param configurationCode:
+        :param downloadApplication:
+        :param downloads:
+        :param dataPaths:
+        :param label:
+        :param returnAvailable:
+        :return: (dict) Response as a dictionary
+        """
+        url = f'{self.apiURL}download-request'
+        json_payload = {"configurationCode": configurationCode,
+                        "downloadApplication": downloadApplication,
+                        "downloads": downloads,
+                        "dataPaths": dataPaths,
+                        "label": label,
+                        "returnAvailable": returnAvailable,  # this may be undocumented parameter
+                        }
+        response = requests.post(url, json=json_payload, headers={'X-Auth-Token': self.apiKey})
+        _check_response(response)
+        return response.json()
 
     def downloadRetrieve(self, downloadApplication=None, label=None):
         """
@@ -594,10 +593,21 @@ class usgsMethods:
         return response.json()
 
     def sceneSearch(self, datasetName, maxResults=None, startingNumber=None, metadataType=None, sortField=None,
-                    sortDirection=None, sceneFilter=None, compareListName=None, bulkListName=None, orderListName=None,
-                    excludeListName=None):
+                    sortDirection=None, sceneFilter=None, compareListName=None, bulkListName=None,
+                    orderListName=None, excludeListName=None):
         """
-        Searching is done with limited search criteria. All coordinates are assumed decimal-degree format. If lowerLeft or upperRight are supplied, then both must exist in the request to complete the bounding box. Starting and ending dates, if supplied, are used as a range to search data based on acquisition dates. The current implementation will only search at the date level, discarding any time information. If data in a given dataset is composite data, or data acquired over multiple days, a search will be done to match any intersection of the acquisition range. There currently is a 50,000 scene limit for the number of results that are returned, however, some client applications may encounter timeouts for large result sets for some datasets. To use the sceneFilter field, pass one of the four search filter objects (SearchFilterAnd, SearchFilterBetween, SearchFilterOr, SearchFilterValue) in JSON format with sceneFilter being the root element of the object.
+        Searching is done with limited search criteria. All coordinates are assumed decimal-degree format. If lowerLeft
+        or upperRight are supplied, then both must exist in the request to complete the bounding box. Starting and
+        ending dates, if supplied, are used as a range to search data based on acquisition dates. The current
+        implementation will only search at the date level, discarding any time information. If data in a given dataset
+        is composite data, or data acquired over multiple days, a search will be done to match any intersection of the
+        acquisition range. There currently is a 50,000 scene limit for the number of results that are returned, however,
+        some client applications may encounter timeouts for large result sets for some datasets. To use the sceneFilter
+        field, pass one of the four search filter objects (SearchFilterAnd, SearchFilterBetween, SearchFilterOr,
+        SearchFilterValue) in JSON format with sceneFilter being the root element of the object.
+
+        :type datasetName: object
+        :rtype: object
         :param datasetName: (string ) Used to identify the dataset to search
         :param maxResults: (int ) Used to identify the dataset to search
         :param startingNumber: (int ) Used to identify the dataset to search
