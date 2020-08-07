@@ -14,7 +14,7 @@ class usgsMethods:
 
     apiURL = r'https://m2m.cr.usgs.gov/api/api/json/stable/'  # must ends with slash: "/"
     apiKey = None
-    loud_mode = True
+    loud_mode = False
 
     def dataOwner(self, dataOwner):
         """
@@ -50,18 +50,17 @@ class usgsMethods:
         _check_response(response)
         return response.json()
 
-    # this method has been removed from docs
-    # def datasetBulkProducts(self, datasetName):
-    #     """
-    #
-    #     :param datasetName:
-    #     :return: (dict) Response as a dictionary
-    #     """
-    #     url = f'{self.apiURL}dataset-bulk-products'
-    #     json_payload = {"datasetName": datasetName}
-    #     response = requests.post(url, json=json_payload, headers={'X-Auth-Token': self.apiKey})
-    #     _check_response(response)
-    #     return response.json()
+    def datasetBulkProducts(self, datasetName):
+        """
+        Lists all available bulk products for a dataset - this does not guarantee scene availability.
+        :param datasetName: (str)  	Used to identify the which dataset to return results for
+        :return: (dict) Response as a dictionary
+        """
+        url = f'{self.apiURL}dataset-bulk-products'
+        json_payload = {"datasetName": datasetName}
+        response = requests.post(url, json=json_payload, headers={'X-Auth-Token': self.apiKey})
+        _check_response(response)
+        return response.json()
 
     def datasetCategories(self, catalog, includeMessages=False, publicOnly=False, parentId=None, datasetFilter=None):
         """
@@ -95,7 +94,6 @@ class usgsMethods:
         _check_response(response)
         return response.json()
 
-    # this method has been removed from docs
     def datasetDownloadOptions(self, datasetName, sceneFilter=None):
         """
         This request lists all available products for a given dataset - this does not guarantee scene availability.
@@ -204,23 +202,23 @@ class usgsMethods:
         _check_response(response)
         return response.json()
 
-    # this method has been removed from docs
-    # def downloadOptions(self, datasetName, entityIds=None, listId=None):
-    #     """
-    #
-    #     :param datasetName:
-    #     :param entityIds:
-    #     :param listId:
-    #     :return: (dict) Response as a dictionary
-    #     """
-    #     url = f'{self.apiURL}download-options'
-    #     json_payload = {"datasetName": datasetName,
-    #                     "entityIds": entityIds,
-    #                     "listId": listId,
-    #                     }
-    #     response = requests.post(url, json=json_payload, headers={'X-Auth-Token': self.apiKey})
-    #     _check_response(response)
-    #     return response.json()
+    def downloadOptions(self, datasetName, entityIds=None, listId=None):
+        """
+        The download options request is used to discover downloadable products for each dataset. If a download is marked
+        as not available, an order must be placed to generate that product.
+        :param datasetName: (str) Dataset alias
+        :param entityIds: (str) List of scenes
+        :param listId: (str) Used to identify the list of scenes to use
+        :return: (dict) Response as a dictionary
+        """
+        url = f'{self.apiURL}download-options'
+        json_payload = {"datasetName": datasetName,
+                        "entityIds": entityIds,
+                        "listId": listId,
+                        }
+        response = requests.post(url, json=json_payload, headers={'X-Auth-Token': self.apiKey})
+        _check_response(response)
+        return response.json()
 
     def downloadOrderLoad(self, downloadApplication=None, label=None):
         """
@@ -258,7 +256,7 @@ class usgsMethods:
         :param downloadId: (int ) Represents the ID of the download from within the queue
         :return: (dict) Response as a dictionary
         """
-        url = f'{self.apiURL}download-order-remove'
+        url = f'{self.apiURL}download-remove'
         json_payload = {"downloadId": downloadId,
                         }
         response = requests.post(url, json=json_payload, headers={'X-Auth-Token': self.apiKey})
@@ -307,8 +305,8 @@ class usgsMethods:
     def downloadSearch(self, activeOnly=None, label=None, downloadApplication=None):
         """
         This method is used to searche for downloads within the queue, regardless of status, that match the given label.
-        :param activeOnly: (boolean ) Determines if completed, failed, cleared and proxied downloads are returned
-        :param label: (string ) Used to filter downloads by label
+        :param activeOnly: (boolean) Determines if completed, failed, cleared and proxied downloads are returned
+        :param label: (string) Used to filter downloads by label
         :param downloadApplication: (string ) Used to filter downloads by the intended downloading application
         :return: (dict) Response as a dictionary
         """

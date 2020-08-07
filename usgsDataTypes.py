@@ -65,6 +65,7 @@ class usgsDataTypes:
         """
         return {'filterType': filterType}
 
+    @classmethod
     def Metadata(cls, filterType):
         """
         :param filterType: (string) Types of the filter: "value" or "between" or "and" or "or"
@@ -182,8 +183,9 @@ class usgsDataTypes:
         return {'StartDate': StartDate, 'endDate': endDate}
 
     @classmethod
-    def Download(cls, id, displayId, entityId, datasetId, available, filesize, productId, productName, productCode,
-                 bulkAvailable, downloadSystem, secondaryDownloads):
+    def Download(cls, id=None, displayId=None, entityId=None, datasetId=None, available=None, filesize=None,
+                 productId=None, productName=None, productCode=None, bulkAvailable=None, downloadSystem=None,
+                 secondaryDownloads=None):
         """
         :param id: (int) Scene Identifier
         :param displayId: (string) Scene Identifier used for display

@@ -10,14 +10,19 @@ def _check_response(response):
 def _check_http_response(response):
     try:
         response.raise_for_status()
+        return True
     except requests.exceptions.HTTPError as error:
         print("Http Error:", error)
+        print(response)
     except requests.exceptions.ConnectionError as error:
         print("Error Connecting:", error)
+        print(response)
     except requests.exceptions.Timeout as error:
         print("Timeout Error:", error)
+        print(response)
     except requests.exceptions.RequestException as error:
         print("OOps: Something Else", error)
+        print(response)
 
 
 def _check_usgs_error(response):
@@ -26,7 +31,7 @@ def _check_usgs_error(response):
     errorMessage = json['errorMessage']
 
     if errorCode is None:
-        return
+        return True
 
     elif errorCode == 'UNKNOWN':
         print(json)
