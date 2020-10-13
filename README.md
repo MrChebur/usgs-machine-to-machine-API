@@ -1,4 +1,4 @@
-![Image](https://repository-images.githubusercontent.com/283676892/cfe07880-d251-11ea-8431-d6deab935fa1)
+![Image](https://repository-images.githubusercontent.com/283676892/ae1b6b80-0d41-11eb-9098-3ebca41f480b)
 Simple Python wrapper of the USGS/EROS Inventory Service Machine-to-Machine API as described in the [documents](https://m2m.cr.usgs.gov/api/docs/json/).
 
 **IMPORTANT**: You must have machine-to-machine access to execute queries. 
