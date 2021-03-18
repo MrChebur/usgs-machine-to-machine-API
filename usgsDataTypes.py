@@ -1,6 +1,6 @@
 class usgsDataTypes:
     """
-    Implementation date: 30.07.2020
+    Implementation date: 11.03.2021
 
     These data types are just wrappers that return dictionaries.
     No special operators are implemented (like "+", ">=", "<" and etc.).
@@ -59,46 +59,64 @@ class usgsDataTypes:
         return {'start': start, 'end': end}
 
     @classmethod
-    def MetadataFilter(cls, filterType):
+    def MetadataFilter(cls, **kwargs):
         """
-        :param filterType: (string) Types of the filter: "value" or "between" or "and" or "or"
+        This is an abstract data model, use MetadataAnd, MetadataBetween, MetadataOr, or MetadataValue
         """
-        return {'filterType': filterType}
+        if 'filterType' not in kwargs:
+            raise ValueError(f'filterType parameter is required')
+
+        if kwargs['filterType'] == "and":
+            return cls.MetadataAnd(**kwargs)
+
+        elif kwargs['filterType'] == "between":
+            return cls.MetadataBetween(**kwargs)
+
+        elif kwargs['filterType'] == "or":
+            return cls.MetadataOr(**kwargs)
+
+        elif kwargs['filterType'] == "value":
+            return cls.MetadataValue(**kwargs)
+
+        else:
+            raise ValueError(
+                f'Invalid filterType value: {kwargs["filterType"]}. Check for SpatialFilterMbr or SpatialFilterGeoJson data types')
 
     @classmethod
-    def Metadata(cls, filterType):
+    def MetadataAnd(cls, childFilters, filterType='and'):
         """
-        :param filterType: (string) Types of the filter: "value" or "between" or "and" or "or"
-        """
-        return {'filterType': filterType}
-
-    @classmethod
-    def MetadataAnd(cls, childFilters):
-        """
+        :param filterType: (string) Value must be "and"
         :param childFilters: (string) Joins any filter parameters together with the "and" logical operator
         """
-        return {'childFilters': childFilters}
+        return {'filterType': filterType, 'childFilters': childFilters}
 
     @classmethod
-    def MetadataBetween(cls, filterId):
+    def MetadataBetween(cls, filterId, firstValue, secondValue, filterType='between'):
         """
-        :param filterId: (int) Unique Identifier for the dataset criteria field corresponding to the fieldId in CriteriaField
+        :param filterType (string) Value must be "between"
+        :param filterId (string) Unique Identifier for the dataset criteria field and it can be retrieved by dataset-filters
+        :param firstValue (int) First value in between clause
+        :param secondValue (int) Second value in between clause
         """
-        return {'filterId': filterId}
+        return {'filterType': filterType, 'filterId': filterId, 'firstValue': firstValue, 'secondValue': secondValue}
 
     @classmethod
-    def MetadataOr(cls, childFilters):
+    def MetadataOr(cls, childFilters, filterType='or'):
         """
+        :param filterType (string) Value must be "or"
         :param childFilters: (string) Joins any filter parameters together with the "or" logical operator
         """
-        return {'childFilters': childFilters}
+        return {'filterType': filterType, 'childFilters': childFilters}
 
     @classmethod
-    def MetadataValue(cls, filterId):
+    def MetadataValue(cls, filterId, value, operand, filterType='value'):
         """
-        :param filterId: (int) Unique Identifier for the dataset criteria field corresponding to the fieldId in CriteriaField
+        :param filterType (string) Value must be "value"
+        :param filterId (string) Unique Identifier for the dataset criteria field and it can be retrieved by dataset-filters
+        :param value (string) Value to use
+        :param operand (string) Determines what operand to search with - accepted values are "=" and "like"
         """
-        return {'filterId': filterId}
+        return {'filterType': filterType, 'filterId': filterId, 'value': value, 'operand': operand}
 
     @classmethod
     def SceneFilter(cls, acquisitionFilter, cloudCoverFilter, datasetName, ingestFilter, metadataFilter,
@@ -117,11 +135,15 @@ class usgsDataTypes:
                 'seasonalFilter': seasonalFilter, 'spatialFilter': spatialFilter}
 
     @classmethod
-    def SpatialBounds(cls, north, east, south, west):
+    def SpatialBounds(cls, **kwargs):
         """
         This is an abstract data model, use spatialBoundsMbr or geoJson
         """
-        return {'north': north, 'east': east, 'south': south, 'west': west}
+        if 'north' in kwargs:
+            return cls.spatialBoundsMbr(**kwargs)
+        elif 'type' in kwargs:
+            return cls.geoJson(**kwargs)
+        raise ValueError(f"'north' or 'type' parameter is required. Check for spatialBoundsMbr or geoJson data types")
 
     @classmethod
     def SpatialBoundsMbr(cls, north, east, south, west):
@@ -183,9 +205,9 @@ class usgsDataTypes:
         return {'StartDate': StartDate, 'endDate': endDate}
 
     @classmethod
-    def Download(cls, id=None, displayId=None, entityId=None, datasetId=None, available=None, filesize=None,
-                 productId=None, productName=None, productCode=None, bulkAvailable=None, downloadSystem=None,
-                 secondaryDownloads=None):
+    def DownloadResponse(cls, id=None, displayId=None, entityId=None, datasetId=None, available=None, filesize=None,
+                         productName=None, productCode=None, bulkAvailable=None, downloadSystem=None,
+                         secondaryDownloads=None):
         """
         :param id: (int) Scene Identifier
         :param displayId: (string) Scene Identifier used for display
@@ -193,7 +215,6 @@ class usgsDataTypes:
         :param datasetId: (string) Dataset Identifier
         :param available: (string) Value is "Y" or "N". Denotes if the download option is available
         :param filesize: (long) The size of the download in bytes
-        :param productId: (string) productId
         :param productName: (string) The user friendly name for this download option
         :param productCode: (string) Internal product code to represent the download option
         :param bulkAvailable: (string) Value is "Y" or "N". Denotes if the download option is available for bulk
@@ -203,7 +224,20 @@ class usgsDataTypes:
         return {'id': id, 'displayId': displayId, 'entityId': entityId, 'datasetId': datasetId,
                 'available': available, 'filesize': filesize, 'productName': productName,
                 'productCode': productCode, 'bulkAvailable': bulkAvailable, 'downloadSystem': downloadSystem,
-                'secondaryDownloads': secondaryDownloads, 'productId': productId}
+                'secondaryDownloads': secondaryDownloads}
+
+    @classmethod
+    def DownloadInput(cls, entityId, productId, dataUse, label):
+        """
+        :param entityId: (string) Entity Identifier
+        :param productId: (string) Product identifiers
+        :param dataUse: (string) The type of use of this data
+        :param label: (string) The label name used when requesting the download
+        """
+        return {'entityId': entityId,
+                'productId': productId,
+                'dataUse': dataUse,
+                'label': label}
 
     @classmethod
     def DownloadQueueDownload(cls, downloadId, collectionName, datasetId, displayId, entityId, eulaCode, filesize,
@@ -236,6 +270,18 @@ class usgsDataTypes:
         return {'eulaCode': eulaCode, 'agreementContent': agreementContent}
 
     @classmethod
+    def FilepathDownload(cls, datasetName, productCode, dataPath, dataUse, label):
+        """
+        :param datasetName: (string) Dataset name
+        :param productCode: (string) Internal code used to represent this product during ordering
+        :param dataPath: (string) The data location to stream the download from
+        :param dataUse: (string) The type of use of this data
+        :param label: (string) The label name used when requesting the download
+        """
+        return {'datasetName': datasetName, 'productCode': productCode, 'dataPath': dataPath, 'dataUse': dataUse,
+                'label': label}
+
+    @classmethod
     def Options(cls, bulk, order, download, secondary):
         """
         :param bulk: (boolean) Denotes if the scene is available for bulk
@@ -244,6 +290,15 @@ class usgsDataTypes:
         :param secondary: (boolean) Denotes if the scene is available for secondary download
         """
         return {'bulk': bulk, 'order': order, 'download': download, 'secondary': secondary}
+
+    @classmethod
+    def ProductDownload(cls, datasetName, productIds, sceneFilter):
+        """
+        :param datasetName: (string) Dataset name
+        :param productIds: (string[]) Product identifiers
+        :param sceneFilter: (sceneFilter) Used to apply a scene filter on the data
+        """
+        return {'datasetName': datasetName, 'productIds': productIds, 'sceneFilter': sceneFilter}
 
     @classmethod
     def Selected(cls, bulk, order, compare):
@@ -346,6 +401,41 @@ class usgsDataTypes:
                 'referenceLink': referenceLink}
 
     @classmethod
+    def DatasetCustomization(cls, datasetName, excluded, metadata, searchSort):
+        """
+        :param datasetName: (string) Alias of the dataset
+        :param excluded: (boolean) Used to include or exclude a dataset
+        :param metadata: (Metadata) Used to customize the layout of a datasets metadata
+        :param searchSort: (SearchSort) Used to sort the datasets results
+        """
+        return {'datasetName': datasetName, 'excluded': excluded, 'metadata': metadata, 'searchSort': searchSort}
+
+    @classmethod
+    def Metadata(cls, metadataType, id, sortOrder):
+        """
+        :param metadataType: (string)Value can be 'export', 'res_sum', 'shp', or 'full'
+        :param id: (string) Used to identify which field your referencing.
+        :param sortOrder: (integer) Used to change the order in which the fields are sorted.
+        """
+        return {'metadataType': metadataType, 'id': id, 'sortOrder': sortOrder}
+
+    @classmethod
+    def SearchSort(cls, id, direction):
+        """
+        :param id: (string) Used to identify which field you want to sort by.
+        :param direction: (string) Used to determine which directions to sort (ASC, DESC).
+        """
+        return {'id': id, 'direction': direction}
+
+    @classmethod
+    def SortCustomization(cls, field_name, direction):
+        """
+        :param field_name: (string) Used to identify which field you want to sort by.
+        :param direction: (string) Used to determine which directions to sort (ASC, DESC).
+        """
+        return {'field_name': field_name, 'direction': direction}
+
+    @classmethod
     def DatasetFilter(cls, id, legacyFieldId, dictionaryLink, fieldConfig, fieldLabel, searchSql):
         """
         :param id: (int) Dataset Identifier
@@ -383,7 +473,7 @@ class usgsDataTypes:
                 'severityCssClass': severityCssClass, 'severityText': severityText, 'dateUpdated': dateUpdated}
 
     @classmethod
-    def Product(cls, id, entityId, datasetId, available, price, productName, productCode):
+    def ProductResponse(cls, id, entityId, datasetId, available, price, productName, productCode):
         """
         :param id: (int) Product Identifier
         :param entityId: (string) Entity Identifier
@@ -397,9 +487,19 @@ class usgsDataTypes:
                 'productName': productName, 'productCode': productCode}
 
     @classmethod
+    def ProductInput(cls, datasetName, entityId, productId, productCode):
+        """
+        :param datasetName: (string) Dataset name
+        :param entityId: (string) Entity Identifier
+        :param productId: (string) Product identifiers
+        :param productCode: (string) Internal product code to represent the download option
+        """
+        return {'datasetName': datasetName, 'entityId': entityId, 'productId': productId, 'productCode': productCode}
+
+    @classmethod
     def RunOptions(cls, resultFormats):
         """
-        :param resultFormats: (string[]) The values contain 'metadata', 'email', 'kml' and 'shapefile
+        :param resultFormats: (string[]) The valid values are 'metadata', 'email', 'kml', 'shapefile', 'geojson'
         """
         return {'resultFormats': resultFormats}
 
@@ -476,6 +576,13 @@ class usgsDataTypes:
                 'runScriptOutput': runScriptOutput, 'runSummary': runSummary, 'runOptions': runOptions,
                 'datasets': datasets, 'catalogId': catalogId, 'lastRunDate': lastRunDate, 'orderIds': orderIds,
                 'bulkIds': bulkIds}
+
+    @classmethod
+    def SubscriptionDataset(cls, datasetName):
+        """
+        :param datasetName: (string) Dataset name
+        """
+        return {'datasetName': datasetName}
 
     @classmethod
     def TramOrder(cls, orderId, username, processingPriority, orderComment, statusCode, statusCodeText, dateEntered,

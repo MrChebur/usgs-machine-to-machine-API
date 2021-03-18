@@ -18,10 +18,17 @@ def main():
     api.login(usgs_username, usgs_password)
     api.loud_mode = True
 
-    # Region of interest coordinate. Too long coordinates list may throw 404 HTTP errors!
+    # show your permissions
+    permissions = api.permissions()
+    print(f"Your login permissions is {permissions['data']}", end='\n' * 2)
+
+    datasetName = 'LANDSAT_8_C1'
+
+    # Let's find some scenes by location!
+    # Region of interest coordinates. Too long coordinates list may throw 404 HTTP errors!
     # Examples:
     # 'Point' [lat ,lon]
-    # 'Polygon' [[ [lat ,lon], ... ]]
+    # 'Polygon' [[ [lat ,lon], [lat ,lon], ... ]]
     ROI = [[
         [59.19852, 63.06039],
         [59.62473, 64.80140],
@@ -55,8 +62,6 @@ def main():
         [59.19852, 63.06039],
     ]]
 
-    datasetName = 'LANDSAT_8_C1'
-
     geoJson = usgsDataTypes.GeoJson(type='Polygon', coordinates=ROI)
     spatialFilter = usgsDataTypes.SpatialFilterGeoJson(filterType='geojson', geoJson=geoJson)
     acquisitionFilter = usgsDataTypes.AcquisitionFilter(start="2020-07-30", end="2020-07-31")
@@ -67,31 +72,33 @@ def main():
                                             metadataFilter=None,
                                             seasonalFilter=None,
                                             spatialFilter=spatialFilter)
-    # print('\nsceneFilter=')
+    # print('sceneFilter=')
     # pprint(sceneFilter)
 
-    # TODO When using polygons in the sceneSearch method, images that do not lie within the boundaries of the polygon are returned.
-    # TODO This is due to the fact that the contours of the images lie at the border of 180/-180 degrees in the projection WGS 84 (EPSG: 4326).
     sceneSearchResult = api.sceneSearch(datasetName=datasetName, maxResults=1, startingNumber=None,
                                         metadataType='full',
-                                        sortField=None,  # "Acquisition Date", '5e83d0b92ff6b5e8' - doesn't work
+                                        sortField=None,
                                         sortDirection='ASC',
                                         sceneFilter=sceneFilter,
                                         compareListName=None,
                                         bulkListName=None,
                                         orderListName=None,
                                         excludeListName=None)
-    print('\nsceneSearchResult=')
-    pprint(sceneSearchResult)
+    # print('sceneSearchResult=')
+    # pprint(sceneSearchResult)
 
-    entityId = None
+    print(f"\nDownloading:")
+
+    productName = 'LandsatLook Quality Image'
     for searchResult in sceneSearchResult['data']['results']:
         entityId = searchResult['entityId']
-        print(entityId)
+        filesize = otherMethods.request_filesize(api, datasetName=datasetName, productName=productName, entityId=entityId)
 
-    results = otherMethods.download(api, datasetName=datasetName, entityId=entityId, output_dir=r'G:\!Download',
-                                    productName='LandsatLook Quality Image')
-    print(results)
+        print(f"The file size of {productName} with entityId={entityId} is {filesize} bytes", end='\n' * 2)
+
+        results = otherMethods.download(api, datasetName=datasetName, entityIds=entityId, productName=productName,
+                                        output_dir=r'G:\!Download')
+        print(results)
 
     api.logout()
     print('Done!')
