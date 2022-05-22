@@ -3,24 +3,24 @@ from usgsDataTypes import usgsDataTypes
 from usgsMethods import usgsMethods
 from otherMethods import otherMethods
 from pprint import pprint
+from multiprocessing.pool import ThreadPool
 
 
 def main():
+
     # In order not to store the login/password in the code - auth with json-formatted text file:
     # {"username": "username", "password": "password"}
-    txt_path = r"G:\Scripts\py_test\USGS\m2mAPI\json_pass.txt"
+    txt_path = r"G:\!auth\query_usgs_auth.json"
     with open(txt_path, 'r') as file:
         json_data = json.load(file)
-        usgs_username = json_data['username']
-        usgs_password = json_data['password']
+        usgs_username = json_data['usgs_username1']
+        usgs_password = json_data['usgs_password1']
 
-    api = usgsMethods()  # instance created
+    api = usgsMethods()
     api.login(usgs_username, usgs_password)
     api.loud_mode = True
-
-    # show your permissions
     permissions = api.permissions()
-    print(f"Your login permissions is {permissions['data']}", end='\n' * 2)
+    print(f"Your login permissions is {permissions['data']}")
 
     datasetName = 'LANDSAT_8_C1'
 
@@ -72,8 +72,8 @@ def main():
                                             metadataFilter=None,
                                             seasonalFilter=None,
                                             spatialFilter=spatialFilter)
-    # print('sceneFilter=')
-    # pprint(sceneFilter)
+
+    print('sceneFilter=', sceneFilter)
 
     sceneSearchResult = api.sceneSearch(datasetName=datasetName, maxResults=1, startingNumber=None,
                                         metadataType='full',
@@ -84,20 +84,21 @@ def main():
                                         bulkListName=None,
                                         orderListName=None,
                                         excludeListName=None)
-    # print('sceneSearchResult=')
-    # pprint(sceneSearchResult)
+
+    print('sceneSearchResult=', sceneSearchResult)
 
     print(f"\nDownloading:")
+    productName = 'LandsatLook Quality Image'  # set 'Level-1 GeoTIFF Data Product' for archive files
 
-    productName = 'LandsatLook Quality Image'
     for searchResult in sceneSearchResult['data']['results']:
         entityId = searchResult['entityId']
-        filesize = otherMethods.request_filesize(api, datasetName=datasetName, productName=productName, entityId=entityId)
+        filesize = otherMethods.request_filesize(api, datasetName=datasetName,
+                                                 productName=productName, entityId=entityId)
 
         print(f"The file size of {productName} with entityId={entityId} is {filesize} bytes", end='\n' * 2)
 
-        results = otherMethods.download(api, datasetName=datasetName, entityIds=entityId, productName=productName,
-                                        output_dir=r'G:\!Download')
+        results = otherMethods.download(api, datasetName=datasetName, entityIds=entityId,
+                                        productName=productName, output_dir=r'G:\!Download')
         print(results)
 
     api.logout()

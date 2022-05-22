@@ -3,8 +3,14 @@ import usgsErrors
 
 
 def _check_response(response):
+    _check_if_response_is_none(response)
     _check_http_response(response)
     _check_usgs_error(response)
+
+
+def _check_if_response_is_none(response):
+    if response is None:
+        raise TypeError
 
 
 def _check_http_response(response):
