@@ -3,8 +3,8 @@ import requests
 import logging
 from datetime import datetime
 from tqdm import tqdm
-from usgsDataTypes import usgsDataTypes
-from usgsMethods import usgsMethods
+from usgs_m2m.usgsDataTypes import usgsDataTypes
+from usgs_m2m.usgsMethods import usgsMethods
 
 
 class otherMethods:

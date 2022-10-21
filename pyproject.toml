@@ -1,0 +1,12 @@
+[project]
+name = "usgs_m2m"
+version = "0.1.0"
+description = "USGS M2M API python wrapper"
+authors = [
+    {name = "MrChebur", email = "20655102+MrChebur@users.noreply.github.com"},
+    {name = "Scanex", email="info@scanex.ru"}
+]
+dependencies = [
+    "requests",
+    "tqdm"
+]

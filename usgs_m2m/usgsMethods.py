@@ -1,5 +1,5 @@
 import requests
-from checkResponse import _check_response
+from usgs_m2m.checkResponse import _check_response
 
 
 class usgsMethods:
