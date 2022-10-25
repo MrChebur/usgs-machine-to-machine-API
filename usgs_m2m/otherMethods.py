@@ -31,7 +31,9 @@ class otherMethods:
         datasetId, productId = None, None
 
         for downloadOption in downloadOptions['data']:
-            if downloadOption['productName'] == productName:
+            if (downloadOption['productName'] == productName and
+                downloadOption['available']):
+                displayId = downloadOption['displayId']
                 datasetId = downloadOption['datasetId']
                 productId = downloadOption['id']
                 break
@@ -49,12 +51,12 @@ class otherMethods:
         results_list = []
         for availableDownload in availableDownloads:
             url = availableDownload['url']
-            path = cls._download(url, output_dir)
+            path = cls._download(url, output_dir, display_id=displayId)
             results_list.append(path)
         return results_list
 
     @classmethod
-    def _download(cls, url, output_dir, chunk_size=1024, timeout=60):
+    def _download(cls, url, output_dir, display_id=None, chunk_size=1024, timeout=60):
         """
         :param url:
         :param output_dir:
@@ -65,7 +67,10 @@ class otherMethods:
 
         if cls.is_downloadable(headers):
             expected_file_size = int(headers['content-length'])
-            file_name = headers['content-disposition'].split('"')[1]
+            if not 'content-disposition' in headers:
+                file_name = display_id
+            else:
+                file_name = headers['content-disposition'].split('"')[1]
             file_path = os.path.join(output_dir, file_name)
 
             with requests.get(url, stream=True, allow_redirects=True, timeout=timeout) as r:
