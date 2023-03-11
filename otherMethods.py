@@ -49,12 +49,15 @@ class otherMethods:
         results_list = []
         for availableDownload in availableDownloads:
             url = availableDownload['url']
-            path = cls._download(url, output_dir)
+            if (productName.find('Bundle') == -1):
+                path = cls._download(url, output_dir)
+            else: 
+                path = cls._download(url, output_dir, bundle_dict={'name': url[url.find("product_id=") + len("product_id="):url.find("product_id=") + len("product_id=") + 38]})
             results_list.append(path)
         return results_list
 
     @classmethod
-    def _download(cls, url, output_dir, chunk_size=1024, timeout=60):
+    def _download(cls, url, output_dir, chunk_size=1024, timeout=60, bundle_dict=None):
         """
         :param url:
         :param output_dir:
@@ -62,32 +65,39 @@ class otherMethods:
         :return: file_path: (str) - if successful, None - if interrupted, 'Skip' - if landsat file is offline,
         """
         headers = requests.head(url, allow_redirects=True).headers
-
         if cls.is_downloadable(headers):
-            expected_file_size = int(headers['content-length'])
-            file_name = headers['content-disposition'].split('"')[1]
+            expected_file_size = int(headers['content-length']) 
+            file_name = "" 
+            if bundle_dict: 
+                file_name = bundle_dict['name'] + ".tar"
+            else: 
+                file_name = headers['content-disposition'].split('"')[1]
             file_path = os.path.join(output_dir, file_name)
 
             with requests.get(url, stream=True, allow_redirects=True, timeout=timeout) as r:
-
                 with tqdm(desc="Downloading", total=expected_file_size, unit_scale=True, unit='B') as progressbar:
+                    print(file_path)
                     with open(file_path, 'wb') as f:
                         for chunk in r.iter_content(chunk_size=chunk_size):
                             if chunk:
                                 progressbar.update(len(chunk))
                                 f.write(chunk)
-
-                if cls.is_download_complete(expected_file_size, file_path):
-                    return file_path
-                else:
-                    # Check if the interrupted download can be continued.
-                    if cls.is_accept_ranges(headers):
-                        print('Hey, they added support for the `Accept-Ranges` header! ',
-                              'Implement a method to recover interrupted downloads!', sep='\n')
-                        # TODO If it is possible to continue downloading, do not delete the file, but try to continue the interrupted download.
-                        os.remove(file_path)
+                
+                if not bundle_dict: 
+                    if cls.is_download_complete(expected_file_size, file_path):
+                        return file_path
                     else:
-                        os.remove(file_path)
+                        # Check if the interrupted download can be continued.
+                        if cls.is_accept_ranges(headers):
+                            print('Hey, they added support for the `Accept-Ranges` header! ',
+                                'Implement a method to recover interrupted downloads!', sep='\n')
+                            # TODO If it is possible to continue downloading, do not delete the file, but try to continue the interrupted download.
+                            os.remove(file_path)
+                        else:
+                            os.remove(file_path)
+                else: 
+                    return file_path
+
 
         return None
 
@@ -100,6 +110,7 @@ class otherMethods:
         """
         if os.path.isfile(file_path):
             actual_file_size = os.path.getsize(file_path)
+            print(actual_file_size)
             if expected_file_size == actual_file_size:
                 return True
         return False
