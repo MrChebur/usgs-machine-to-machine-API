@@ -49,7 +49,7 @@ class otherMethods:
         results_list = []
         for availableDownload in availableDownloads:
             url = availableDownload['url']
-            if (productName.find('Bundle') == -1):
+            if productName.find('Bundle') == -1:
                 path = cls._download(url, output_dir)
             else: 
                 path = cls._download(url, output_dir, bundle_dict={'name': url[url.find("product_id=") + len("product_id="):url.find("product_id=") + len("product_id=") + 38]})
