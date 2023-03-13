@@ -74,8 +74,7 @@ class otherMethods:
             file_path = os.path.join(output_dir, file_name)
 
             with requests.get(url, stream=True, allow_redirects=True, timeout=timeout) as r:
-                with tqdm(desc="Downloading", total=expected_file_size, unit_scale=True, unit='B') as progressbar:
-                    print(file_path)
+                with tqdm(desc="Downloading", total=expected_file_size, unit_scale=True, unit='B') as progressbar:                    
                     with open(file_path, 'wb') as f:
                         for chunk in r.iter_content(chunk_size=chunk_size):
                             if chunk:
@@ -108,8 +107,7 @@ class otherMethods:
         :return: (boolean)
         """
         if os.path.isfile(file_path):
-            actual_file_size = os.path.getsize(file_path)
-            print(actual_file_size)
+            actual_file_size = os.path.getsize(file_path)            
             if expected_file_size == actual_file_size:
                 return True
         return False
