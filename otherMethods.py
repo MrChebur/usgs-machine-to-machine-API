@@ -67,7 +67,6 @@ class otherMethods:
         headers = requests.head(url, allow_redirects=True).headers
         if cls.is_downloadable(headers):
             expected_file_size = int(headers['content-length']) 
-            file_name = "" 
             if bundle_dict: 
                 file_name = bundle_dict['name'] + ".tar"
             else: 
