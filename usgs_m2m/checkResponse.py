@@ -1,5 +1,5 @@
 import requests
-import usgsErrors
+import usgs_m2m.usgsErrors
 
 
 def _check_response(response):
