@@ -1,8 +1,8 @@
 import requests
-from usgs_m2m.checkResponse import _check_response
+from .checkResponse import _check_response
 
 
-class usgsMethods:
+class API:
     """
     Implementation date: 12.03.2021
 
@@ -13,7 +13,7 @@ class usgsMethods:
     https://m2m.cr.usgs.gov/api/docs/reference/
     """
 
-    apiURL = r'https://m2m.cr.usgs.gov/api/api/json/stable/'  # must ends with slash: "/"
+    apiURL = r'https://m2m.cr.usgs.gov/api/api/json/stable/'  # must end with a slash: "/"
     apiKey = None
     loud_mode = False
 
