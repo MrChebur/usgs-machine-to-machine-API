@@ -1,7 +1,9 @@
 import json
-from usgsDataTypes import usgsDataTypes
-from usgsMethods import usgsMethods
-from otherMethods import otherMethods
+
+from usgs_m2m import API as M2M
+from usgs_m2m import usgsDataTypes
+from usgs_m2m import otherMethods
+
 from pprint import pprint
 from multiprocessing.pool import ThreadPool
 
@@ -10,13 +12,13 @@ def main():
 
     # In order not to store the login/password in the code - auth with json-formatted text file:
     # {"username": "username", "password": "password"}
-    txt_path = r"G:\!auth\query_usgs_auth.json"
+    txt_path = r"auth.json"
     with open(txt_path, 'r') as file:
         json_data = json.load(file)
-        usgs_username = json_data['usgs_username1']
-        usgs_password = json_data['usgs_password1']
+        usgs_username = json_data['username']
+        usgs_password = json_data['password']
 
-    api = usgsMethods()
+    api = M2M()
     api.login(usgs_username, usgs_password)
     api.loud_mode = True
     permissions = api.permissions()
