@@ -48,17 +48,13 @@ def _check_usgs_error(response):
         print(json)
         raise INPUT_FORMAT(f'{errorCode}: {errorMessage}')
 
-    elif errorCode == 'INPUT_PARAMETER_INVALID/INPUT_INVALID ':
-        print(json)
-        raise INPUT_INVALID(f'{errorCode}: {errorMessage}')
-
-    elif errorCode == 'INPUT_PARAMETER_INVALID':
+    elif errorCode == 'INPUT_PARAMETER_INVALID' or errorCode == 'INPUT_INVALID':
         print(json)
         raise INPUT_PARAMETER_INVALID(f'{errorCode}: {errorMessage}')
 
-    elif errorCode == 'INPUT_INVALID ':
+    elif errorCode == 'INPUT_PARAMETER_REQUIRED':
         print(json)
-        raise INPUT_INVALID(f'{errorCode}: {errorMessage}')
+        raise INPUT_PARAMETER_REQUIRED(f'{errorCode}: {errorMessage}')
 
     elif errorCode == 'NOT_FOUND':
         print(json)
@@ -92,7 +88,7 @@ def _check_usgs_error(response):
         print(json)
         raise DOWNLOAD_ERROR(f'{errorCode}: {errorMessage}')
 
-    elif errorCode == 'DATASET_UNAUTHORIZED':
+    elif errorCode == 'DATASET_UNAUTHORIZED' or errorCode == 'DATASET_AUTH':
         print(json)
         raise DATASET_UNAUTHORIZED(f'{errorCode}: {errorMessage}')
 
