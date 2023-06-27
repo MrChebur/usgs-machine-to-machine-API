@@ -3,8 +3,9 @@ import requests
 import logging
 from datetime import datetime
 from tqdm import tqdm
-from usgs_m2m.usgsDataTypes import usgsDataTypes
-from usgs_m2m.usgsMethods import usgsMethods
+
+from .usgsDataTypes import usgsDataTypes
+from .usgsMethods import API
 
 
 class otherMethods:
@@ -20,7 +21,7 @@ class otherMethods:
         """
          Perform scene search and download.
 
-        :param api: Instance of usgsMethods()
+        :param api: Instance of API()
         :param datasetName:
         :param entityIds:
         :param productName:
@@ -147,7 +148,7 @@ class otherMethods:
     def request_filesize(cls, api, datasetName, productName, entityId):
         """
         Checks file size of the scene.
-        :param api: (usgsMethods)  Instance of usgsMethods()
+        :param api: (API)  Instance of API()
         :param datasetName: (str) In example: 'LANDSAT_8_C1'
         :param productName: (str) In example: 'Level-1 GeoTIFF Data Product'
         :param entityId: (str) entityId
