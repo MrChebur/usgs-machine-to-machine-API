@@ -20,7 +20,7 @@ class INPUT_PARAMETER_INVALID(Exception):
     pass
 
 
-class INPUT_INVALID(Exception):
+class INPUT_PARAMETER_REQUIRED(Exception):
     pass
 
 
@@ -58,7 +58,6 @@ class DATASET_UNAUTHORIZED(Exception):
 
 class DATASET_INVALID(Exception):
     pass
-
 
 class SEARCH_ERROR(Exception):
     pass
