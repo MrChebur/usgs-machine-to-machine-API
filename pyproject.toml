@@ -1,11 +1,26 @@
+[build-system]
+requires = [
+    "setuptools",
+    "setuptools-scm"
+]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "usgs_m2m"
-version = "0.0.1"
-description = "Python wrapper of the USGS/EROS Inventory Service Machine-to-Machine API"
 authors = [
-    {name = "MrChebur", email = "20655102+MrChebur@users.noreply.github.com"},
+    { name = "MrChebur" },
 ]
-dependencies = [
-    "requests",
+description = "Python wrapper of the USGS/EROS Inventory Service Machine-to-Machine API"
+readme = "README.md"
+version = "0.1.0"
+requires-python = ">= 3.9"
+dependencies = ["requests",
     "tqdm"
 ]
+
+[project.urls]
+Homepage = "https://github.com/MrChebur/usgs-machine-to-machine-API"
+Issues = "https://github.com/MrChebur/usgs-machine-to-machine-API/issues"
+
+[tool.setuptools.packages.find]
+where = ["usgs_m2m"]
