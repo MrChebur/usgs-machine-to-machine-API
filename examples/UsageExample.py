@@ -1,36 +1,35 @@
 import json
+from pprint import pprint
+from pathlib import Path
 
 from usgs_m2m import API as M2M
-from usgs_m2m import usgsDataTypes
 from usgs_m2m import otherMethods
+from usgs_m2m.usgsDataTypes import (GeoJson,
+                                    SpatialFilterGeoJson,
+                                    AcquisitionFilter,
+                                    SceneFilter,
+                                    )
 
-from pprint import pprint
-from multiprocessing.pool import ThreadPool
 
-
-def main():
-
+def example_search_scene_and_download_quicklook():
+    print()
     # In order not to store the login/password in the code - auth with json-formatted text file:
     # {"username": "username", "password": "password"}
-    txt_path = r"auth.json"
+    txt_path = r"E:\kupriyanov\!auth\query_usgs_auth.json"
+
     with open(txt_path, 'r') as file:
         json_data = json.load(file)
-        usgs_username = json_data['username']
-        usgs_password = json_data['password']
+        usgs_username = json_data['usgs_username1']
+        usgs_token = json_data['usgs_token1']
 
-    api = M2M()
-    api.login(usgs_username, usgs_password)
+    api = M2M()  # instance created
+    api.loginToken(usgs_username, usgs_token)  # this is new login method
     api.loud_mode = True
-    permissions = api.permissions()
-    print(f"Your login permissions is {permissions['data']}")
 
-    datasetName = 'LANDSAT_8_C1'
-
-    # Let's find some scenes by location!
-    # Region of interest coordinates. Too long coordinates list may throw 404 HTTP errors!
+    # Region of interest coordinate. Too long coordinates list may throw 404 HTTP errors!
     # Examples:
     # 'Point' [lat ,lon]
-    # 'Polygon' [[ [lat ,lon], [lat ,lon], ... ]]
+    # 'Polygon' [[ [lat ,lon], ... ]]
     ROI = [[
         [59.19852, 63.06039],
         [59.62473, 64.80140],
@@ -64,48 +63,95 @@ def main():
         [59.19852, 63.06039],
     ]]
 
-    geoJson = usgsDataTypes.GeoJson(type='Polygon', coordinates=ROI)
-    spatialFilter = usgsDataTypes.SpatialFilterGeoJson(filterType='geojson', geoJson=geoJson)
-    acquisitionFilter = usgsDataTypes.AcquisitionFilter(start="2020-07-30", end="2020-07-31")
-    sceneFilter = usgsDataTypes.SceneFilter(acquisitionFilter=acquisitionFilter,
-                                            cloudCoverFilter=None,
-                                            datasetName=datasetName,
-                                            ingestFilter=None,
-                                            metadataFilter=None,
-                                            seasonalFilter=None,
-                                            spatialFilter=spatialFilter)
+    datasetName = 'landsat_ot_c2_l1'
 
-    print('sceneFilter=', sceneFilter)
-
-    sceneSearchResult = api.sceneSearch(datasetName=datasetName, maxResults=1, startingNumber=None,
+    geoJson = GeoJson(type='Polygon', coordinates=ROI).dict
+    spatialFilter = SpatialFilterGeoJson(filterType='geojson', geoJson=geoJson).dict
+    acquisitionFilter = AcquisitionFilter(start="2020-07-30", end="2020-07-31").dict
+    sceneFilter = SceneFilter(acquisitionFilter=acquisitionFilter,
+                              cloudCoverFilter=None,
+                              datasetName=datasetName,
+                              ingestFilter=None,
+                              metadataFilter=None,
+                              seasonalFilter=None,
+                              spatialFilter=spatialFilter).dict
+    # print('\nsceneFilter=')
+    # pprint(sceneFilter)
+    #
+    # When using polygons in the sceneSearch method, images that do not lie within the boundaries of the polygon are returned.
+    # This is due to the fact that the contours of the images lie at the border of 180/-180 degrees in the projection WGS 84 (EPSG: 4326).
+    sceneSearchResult = api.sceneSearch(datasetName=datasetName,
+                                        maxResults=1,
+                                        startingNumber=None,
                                         metadataType='full',
-                                        sortField=None,
+                                        sortField=None,  # "Acquisition Date", '5e83d0b92ff6b5e8' - doesn't work
                                         sortDirection='ASC',
                                         sceneFilter=sceneFilter,
                                         compareListName=None,
                                         bulkListName=None,
                                         orderListName=None,
                                         excludeListName=None)
+    # print('\nsceneSearchResult=')
+    # pprint(sceneSearchResult)
 
-    print('sceneSearchResult=', sceneSearchResult)
+    dataset_info = api.dataset(datasetName=datasetName)
+    dataset_alias = dataset_info['data']['datasetAlias']
+    print(f'dataset_alias={dataset_alias}')
 
-    print(f"\nDownloading:")
-    productName = 'LandsatLook Quality Image'  # set 'Level-1 GeoTIFF Data Product' for archive files
-
+    entityId = None
     for searchResult in sceneSearchResult['data']['results']:
         entityId = searchResult['entityId']
-        filesize = otherMethods.request_filesize(api, datasetName=datasetName,
-                                                 productName=productName, entityId=entityId)
+        print(f'Scene name (entityId): {entityId}')
 
-        print(f"The file size of {productName} with entityId={entityId} is {filesize} bytes", end='\n' * 2)
+    # pprint(dataset_info)
 
-        results = otherMethods.download(api, datasetName=datasetName, entityIds=entityId,
-                                        productName=productName, output_dir=r'G:\!Download')
-        print(results)
+    print(f'\nSearching {dataset_alias} dataset products...')
+    products = api.datasetBulkProducts(dataset_alias)
+    # pprint(products)
 
+    product_name_natural_colors = None
+    for product in products['data']:
+        product_name = product['productName']
+        if 'geotiff' in product_name.lower() and 'natural' in product_name.lower():
+            product_name_natural_colors = product_name
+
+    print(f'Downloading product: {product_name_natural_colors}')
+    results = otherMethods.download(api,
+                                    datasetName=datasetName,
+                                    entityId=entityId,
+                                    output_dir=Path(r'.\\').resolve(),
+                                    productName=product_name_natural_colors)
+    print(results)
+    api.logout()
+
+
+def example_print_scene_size():
+    # In order not to store the login/password in the code - auth with json-formatted text file:
+    # {"username": "username", "password": "password"}
+    txt_path = r"E:\kupriyanov\!auth\query_usgs_auth.json"
+    with open(txt_path, 'r') as file:
+        json_data = json.load(file)
+        usgs_username = json_data['usgs_username1']
+        usgs_password = json_data['usgs_password1']
+
+    api = M2M()  # instance created
+    api.login(usgs_username, usgs_password)  # login method will be deprecated in February 2025
+    api.loud_mode = True
+
+    datasetName = 'LANDSAT_OT_C2_L1'
+
+    filesize_usgs = otherMethods.request_filesize(api,
+                                                  datasetName,
+                                                  productName='Landsat Collection 2 Level-1 Product Bundle',
+                                                  entityId='LC81650162022019LGN00')
+    print(f'filesize_usgs={filesize_usgs} bytes')
     api.logout()
     print('Done!')
 
 
 if __name__ == '__main__':
-    main()
+    print('\nExecuting `example_print_scene_size()`')
+    example_print_scene_size()
+
+    print('\nExecuting `example_search_scene_and_download_quicklook()`')
+    example_search_scene_and_download_quicklook()
