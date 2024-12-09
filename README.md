@@ -12,8 +12,9 @@ You can order access [here](https://ers.cr.usgs.gov/profile/access).
 
 **How to install?**
 
-pip install `insert *.zip here`
-
+```
+pip install https://github.com/MrChebur/usgs-machine-to-machine-API/archive/master.zip
+```
 
 **Usage Example**
 
