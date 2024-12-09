@@ -8,8 +8,10 @@ Simple Python wrapper of the USGS/EROS Inventory Service Machine-to-Machine API 
 * Type hits added to USGS methods and data types.
 * The old USGS `login` method will be deprecated in February 2025 (a warning has been added).
 ----------------------------------------
-**IMPORTANT**: You must have machine-to-machine access to execute queries. 
-You can order access [here](https://ers.cr.usgs.gov/profile/access). 
+> [!IMPORTANT]
+> 
+> You must have machine-to-machine access to execute queries.
+> You can order access [here](https://ers.cr.usgs.gov/profile/access). 
 ----------------------------------------
 **INSTALLATION**
 ```
