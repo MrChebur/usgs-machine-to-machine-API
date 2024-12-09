@@ -1,9 +1,8 @@
 import json
-from pprint import pprint
 from pathlib import Path
 
-from usgs_m2m import API as M2M
-from usgs_m2m import otherMethods
+from usgs_m2m.usgsMethods import API as M2M
+from usgs_m2m.otherMethods import otherMethods
 from usgs_m2m.usgsDataTypes import (GeoJson,
                                     SpatialFilterGeoJson,
                                     AcquisitionFilter,

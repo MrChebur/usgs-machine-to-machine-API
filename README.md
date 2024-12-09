@@ -18,7 +18,7 @@ pip install https://github.com/MrChebur/usgs-machine-to-machine-API/archive/mast
 ----------------------------------------
 **CODE EXAMPLES**
 ```python
-from usgs_m2m import API as M2M
+from usgs_m2m.usgsMethods import API as M2M
 
 api = M2M()
 api.loginToken('usgs_username', 'usgs_token')
