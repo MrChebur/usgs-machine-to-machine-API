@@ -26,7 +26,14 @@ api = M2M()
 api.loginToken('usgs_username', 'usgs_token')
 permissions = api.permissions()
 print(permissions)
-# {'requestId': <clipped>, 'version': 'stable', 'sessionId': <clipped>, 'data': ['user', 'download', 'order'], 'errorCode': None, 'errorMessage': None}
+# {
+#     'requestId': '00000000', 
+#     'version': 'stable', 
+#     'sessionId': '00000000', 
+#     'data': ['user', 'download', 'order'],
+#     'errorCode': None, 
+#     'errorMessage': None
+# }
 ```
 See more usage example [here](https://github.com/MrChebur/usgs-machine-to-machine-API/blob/master/UsageExample.py). 
 
