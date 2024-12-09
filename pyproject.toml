@@ -21,6 +21,3 @@ dependencies = ["requests",
 [project.urls]
 Homepage = "https://github.com/MrChebur/usgs-machine-to-machine-API"
 Issues = "https://github.com/MrChebur/usgs-machine-to-machine-API/issues"
-
-[tool.setuptools.packages.find]
-where = ["usgs_m2m"]
