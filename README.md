@@ -19,6 +19,8 @@ pip install https://github.com/MrChebur/usgs-machine-to-machine-API/archive/mast
 ```
 ----------------------------------------
 **CODE EXAMPLES**
+
+See another code example [here](https://github.com/MrChebur/usgs-machine-to-machine-API/blob/master/examples/UsageExample.py). 
 ```python
 from usgs_m2m.usgsMethods import API as M2M
 
@@ -35,6 +37,4 @@ print(permissions)
 #     'errorMessage': None
 # }
 ```
-See more usage example [here](https://github.com/MrChebur/usgs-machine-to-machine-API/blob/master/UsageExample.py). 
-
 ----------------------------------------
