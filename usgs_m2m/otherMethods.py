@@ -1,4 +1,6 @@
 import os
+import time
+
 import requests
 import logging
 from datetime import datetime
@@ -43,12 +45,12 @@ class otherMethods:
         results_list = []
         for availableDownload in availableDownloads:
             url = availableDownload['url']
-            path = cls._download(url, output_dir)
+            path = cls._download(url, output_dir, connect_timeout=21, read_timeout=30)
             results_list.append(path)
         return results_list
 
     @classmethod
-    def _download(cls, url, output_dir, chunk_size=1024):
+    def _download(cls, url, output_dir, chunk_size=1024, connect_timeout=None, read_timeout=None):
         """
         :param url:
         :param output_dir:
@@ -56,7 +58,7 @@ class otherMethods:
         :return: file_path: (str) - if successful, None - if interrupted, 'Skip' - if landsat file is offline,
         """
 
-        with requests.get(url, stream=True, allow_redirects=True) as r:
+        with requests.get(url, stream=True, allow_redirects=True, timeout=(connect_timeout, read_timeout)) as r:
             try:
                 expected_file_size = int(r.headers['Content-Length'])
             except KeyError:  # if `Content-Length` header is absent - it means file is not downloadable now
@@ -66,6 +68,10 @@ class otherMethods:
                     file_name = r.headers['Content-Disposition'].split('"')[1]
                 except KeyError:  # if `Content-Disposition` header is absent - it means file is not downloadable now
                     return 'Skip'
+                # except TimeoutError:  # try gain once - if server does not response in time
+                #     time.sleep(10)  # todo: not sure - is this good idea to wait here 10 seconds?
+                #     file_name = r.headers['Content-Disposition'].split('"')[1]
+
                 file_path = os.path.join(output_dir, file_name)
                 with open(file_path, 'wb') as f:
                     for chunk in r.iter_content(chunk_size=chunk_size):
